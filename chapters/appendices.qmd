@@ -1,0 +1,566 @@
+---
+execute: 
+  eval: false
+  echo: true
+  warning: false
+---
+
+# Appendices {.unnumbered}
+
+## Creating paper figures
+
+Below you can find the code used to create the figures in the paper.
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(here)
+library(maps)
+library(magick)
+library(ggplotify)
+library(ggpubr)
+set.seed(123)
+
+# ---- Figure 1 ----
+## Load data
+load(here("data", "metadata_atlas_v2_downloaded.rda"))
+load(here("products", "result_files", "fastp_stats.rda"))
+load(here("products", "result_files", "mapping_rate_salmon.rda"))
+
+fastp_sample_stats <- left_join(
+    fastp_stats, metadata_atlas_v2_downloaded[, c("BioSample", "Run")],
+    by = c("Sample" = "Run")
+) |>
+    distinct(BioSample, .keep_all = TRUE)
+
+##----1A: Workflow----
+p_1a <- ggplot() + theme_void() # workflow image will be manually added later
+
+##----1B: Barplot of samples that passed and failed QC----
+data_1b <- data.frame(
+    Group = c("Initial", "Checkpoint 1", "Checkpoint 2"),
+    Frequency = c(
+        # Initial
+        length(unique(metadata_atlas_v2_downloaded$BioSample)),
+        # Passed checkpoint 1 (sequence QC)
+        fastp_stats |>
+            filter(after_meanlength >= 40) |>
+            filter(after_q20rate >= 0.8) |>
+            left_join(metadata_atlas_v2_downloaded, by = c("Sample" = "Run")) |>
+            pull(BioSample) |> 
+            unique() |> 
+            length(),
+        # Passed checkpoint 2 (mapping rates)
+        mapping_rate |>
+            filter(Mapping_rate >= 50) |> 
+            pull(BioSample) |>
+            unique() |>
+            length()
+    )
+) |>
+    mutate(Difference = c(NA, diff(Frequency)))
+
+p_1b <- ggplot(data_1b, aes(y = fct_reorder(Group, Frequency), x = Frequency)) +
+    geom_bar(
+        stat = "identity", fill = c("dodgerblue3", "brown2", "firebrick"),
+        color = "black"
+    ) +
+    labs(
+        title = "Number of BioSamples after each filtering step",
+        subtitle = "Numbers inside bars indicate removed samples",
+        y = "", x = "Number of samples"
+    ) +
+    geom_text(aes(label = Frequency), hjust = -0.3) +
+    geom_text(aes(label = Difference), hjust = 1.5, color = "white", fontface = "bold") +
+    theme_bw() +
+    xlim(0, 8000) 
+
+
+##----1C: Distribution of read length
+p_1c <- fastp_sample_stats |>
+    filter(after_meanlength <= 150) |>
+    ggplot(aes(x = after_meanlength)) +
+    geom_density(fill = "grey85", color = "gray30") +
+    theme_bw() +
+    labs(
+        title = "Distribution of mean read lengths per sample",
+        subtitle = "Dashed line indicates the minimum length in checkpoint 1",
+        x = "", y = "Density"
+    ) +
+    geom_vline(xintercept = 40, color = "firebrick", linetype = "dashed")
+    
+
+##----1D: Distribution of Q20 rates----
+p_1d <- fastp_sample_stats |>
+    filter(after_meanlength <= 150) |>
+    mutate(after_q20rate = as.numeric(after_q20rate)) |>
+    ggplot(aes(x = after_q20rate)) +
+    geom_density(fill = "lightskyblue1", color = "gray30") +
+    theme_bw() +
+    geom_vline(xintercept = 0.8, color = "firebrick", linetype = "dashed") +
+    labs(
+        title = "Distribution of Q20 rates per sample",
+        subtitle = "Dashed line indicates the minimum rate in checkpoint 1",
+        x = "", y = "Density"
+    )
+
+p_1d
+
+
+##----1E: Distribution of quasi-mapping rates----
+p_1e <- mapping_rate |>
+    mutate(Mapping_rate = Mapping_rate / 100) |>
+    ggplot(aes(x = Mapping_rate)) +
+    geom_density(fill = "lemonchiffon2", color = "gray30") +
+    theme_bw() +
+    geom_vline(xintercept = 0.5, color = "firebrick", linetype = "dashed") +
+    labs(
+        title = "Distribution of mapping rates per sample",
+        subtitle = "Dashed line indicates the rate in checkpoint 2",
+        x = "", y = "Density"
+    )
+
+
+##----1F: Distribution of number of reads---
+p_1f <- fastp_sample_stats |>
+    filter(after_meanlength <= 150) |>
+    filter(after_nreads <= 1600 * 1e6 & after_nreads > 0) |>
+    mutate(after_nreads = after_nreads / 1e6) |>
+    ggplot(aes(x = after_nreads)) +
+    geom_density(fill = "darkseagreen3", color = "gray30") +
+    theme_bw() +
+    labs(
+        title = "Distribution of number of reads (in millions) per sample",
+        x = "", y = "Density"
+    )
+
+## Combine plots
+fig1 <- wrap_plots(
+    wrap_plots(
+        p_1a, 
+        p_1b + theme(
+            axis.text.y = element_text(size = 12)
+        ), 
+        heights = c(4, 1), nrow = 2
+    ), 
+    wrap_plots(
+        p_1c, p_1d, p_1e, p_1f,
+        ncol = 1
+    )
+) +
+    plot_annotation(tag_levels = "A")
+
+## Combine workflow (fig 1A) and other panels
+temp_fig1 <- tempfile(fileext = ".pdf")
+ggsave(
+    fig1, filename = temp_fig1,
+    width = 11, height = 13
+)
+
+fig1a <- image_read_svg(
+    here("products", "figs", "atlas_workflow_paper.svg")
+)
+fig1rest <- image_read_pdf(temp_fig1)
+
+fig1_final <- image_composite(
+    fig1rest, image_scale(fig1a, "x2900")
+)
+
+## Save figure 1
+image_write(
+    fig1_final, 
+    path = here("products", "figs", "figure1.pdf"),
+    format = "pdf"
+)
+
+image_write(
+    fig1_final, 
+    path = here("products", "figs", "figure1.png"),
+    format = "png",
+    density = 300
+)
+
+
+#----Figure 2-----
+load(here("products", "plots", "p_tsne_optimal_perplexity.rda"))
+load(here("products", "plots", "p_umap_optimal_nneighbors.rda"))
+load(here("products", "plots", "p_samples_per_body_part.rda"))
+
+##----2A: Barplot of number of samples per tissue
+parts <- png::readPNG(
+    here("products", "figs", "soybean_parts_colored.png"),
+    native = TRUE
+)
+
+
+p_2a <- p_samples_per_body_part$data |>
+    left_join(
+        data.frame(
+            Part = c(
+                "Leaf", "Seed", "Seed Coat", "Root", "Embryo", "Cotyledon",
+                "Shoot", "Hypocotyl", "Pod", "Flower", "Endosperm", 
+                "Suspensor", "Seedling", "Nodule"
+            ),
+            n_v1 = c(
+                601, 158, 125, 100, 81, 48, 42, 24, 23, 18, 10, 9, 3, 2
+            )
+        )
+    ) |>
+    mutate(
+        new_n = n - n_v1,
+        new_n = replace_na(new_n, 0),
+        Part = factor(Part, levels = levels(p_samples_per_body_part$data$Part))
+    ) |>
+    mutate(
+        label = case_when(
+            new_n > 0 ~ paste0("**", n, "**", " (+", new_n, ")"),
+            TRUE ~ paste0("**", n, "**", "   ")
+        )
+    ) |>
+    ggplot(aes(x = n, y = Part)) +
+    ggpubr::background_image(
+        png::readPNG(
+            here("products", "figs", "bg_gradient_left_right.png"),
+            native = TRUE
+        )
+    ) +
+    geom_bar(stat = "identity", fill = "#719f2d") +
+    labs(
+        title = "Number of samples per body part",
+        subtitle = "Numbers in parentheses represent newly added samples",
+        x = "Number of samples", y = ""
+    ) +
+    ggtext::geom_richtext(
+        aes(label = label), hjust = -0.1, fill = NA, label.color = NA,
+        size = 4.5
+    ) +
+    ggpubr::theme_pubr() +
+    scale_x_continuous(limits = c(0, 2300), expand = c(0, 0)) +
+    inset_element(
+        parts,
+        left = 0.25,
+        top = 0.95,
+        right = 1,
+        bottom = 0.25
+    ) +
+    theme_void() 
+
+
+##----2B: t-SNE representation of samples----
+p_2b <- p_tsne_optimal_perplexity$data |>
+    mutate(colour_by = str_to_title(colour_by)) |>
+    # Plot
+    ggplot(aes(x = X, y = Y, color = colour_by)) +
+    ggpubr::background_image(
+        png::readPNG(
+            here("products", "figs", "bg_gradient_bottom_top.png"),
+            native = TRUE
+        )
+    ) +
+    geom_point(alpha = 0.5) +
+    ggsci::scale_color_d3(palette = "category20") +
+    theme(
+        legend.key = element_blank(),
+        legend.position = "right"
+    ) +
+    labs(
+        color = "Body part",
+        title = "t-SNE representation of all samples",
+        subtitle = "Top 8 principal components, perplexity = 60",
+        x = "t-SNE 1", y = "t-SNE 2"
+    )
+
+
+p_2b
+
+
+##----2C: UMAP representation of samples----
+p_2c <- p_umap_optimal_nneighbors$data |>
+    mutate(colour_by = str_to_title(colour_by)) |>
+    # Plot
+    ggplot(aes(x = X, y = Y, color = colour_by)) +
+    ggpubr::background_image(
+        png::readPNG(
+            here("products", "figs", "bg_gradient_bottom_top.png"),
+            native = TRUE
+        )
+    ) +
+    geom_point(alpha = 0.5) +
+    ggsci::scale_color_d3(palette = "category20") +
+    theme(
+        legend.key = element_blank(),
+        legend.position = "right"
+    ) +
+    labs(
+        color = "Body part",
+        x = "UMAP 1", y = "UMAP 2",
+        title = "UMAP representation of all samples",
+        subtitle = "Top 8 principal components, n_neighbors = 30"
+    )
+
+p_2c
+
+
+## Combine plots
+fig2 <- wrap_plots(
+    p_2a,
+    wrap_plots(p_2b, p_2c, ncol = 1) +
+        plot_layout(guides = "collect"),
+    ncol = 2, widths = c(1.5, 1)
+) +
+    plot_annotation(tag_levels = list(c("A", "", "B", "C")))
+
+fig2
+
+
+## Save figure 2
+ggsave(
+    fig2, filename = here("products", "figs", "figure2.png"),
+    width = 16, height = 10, dpi = 300
+)
+
+ggsave(
+    fig2, filename = here("products", "figs", "figure2.pdf"),
+    width = 14, height = 10
+)
+
+#----Figure 3----
+## Load data
+load(here("products", "plots", "p_heatmap_median.rda"))
+load(here("products", "plots", "p_heatmap_specific_tfs.rda"))
+load(here("products", "plots", "p_upset.rda"))
+load(here("products", "plots", "p_genes_per_group.rda"))
+
+## Enhance graphical details
+### Change title of barplot
+p_genes_per_group <- p_genes_per_group + 
+    labs(title = "Genes per expression group") +
+    xlim(0, 40000)
+
+### Add title to UpSet plot
+p_upset@column_title <- "Overlap among body part-specific genes"
+
+### Change title and fontface of heatmap from bold to plain
+p_heatmap_median@column_title_param$gp$font <- 1
+p_heatmap_median@column_title <- "Expression of body part-specific genes"
+
+### Change fontface of heatmap from bold to plain
+p_heatmap_specific_tfs@column_title_param$gp$font <- 1
+
+## Combine plots
+fig3 <- ggarrange(
+    ## First row
+    ggarrange(
+        p_genes_per_group, as.ggplot(p_upset), nrow = 1, 
+        widths = c(1,3), labels = list("A", "B")
+    ),
+    ## Second row
+    ggarrange(
+        as.ggplot(p_heatmap_median), as.ggplot(p_heatmap_specific_tfs), 
+        nrow = 1, widths = c(1, 2), labels = list("C", "D")
+    ),
+    nrow = 2
+)
+
+## Save figure 3
+ggsave(
+    fig3, 
+    filename = here("products", "figs", "figure3.pdf"),
+    width = 15, height = 12
+)
+
+image_read_pdf(here("products", "figs", "figure3.pdf")) |>
+    image_write(
+        path = here("products", "figs", "figure3.png"),
+        density = 300
+    )
+
+
+#----Figure 4-----
+## Load data
+load(here("products", "plots", "p_map_samples_per_country.rda"))
+load(here("products", "plots", "p_barplot_samples_per_country.rda"))
+load(here("products", "plots", "p_nsamples_over_time_cumsum.rda"))
+load(here("products", "plots", "p_seqtech_layout_count.rda"))
+top_producers <- c(
+    "Brazil", "USA", "Argentina", "China", "India", "Paraguay", "Canada"
+)
+
+##----4A and 4B: World map + samples per country----
+p_4ab <- wrap_plots(
+    p_map_samples_per_country, 
+    p_barplot_samples_per_country +
+        labs(
+            subtitle = "Blue bars indicate world leaders in soybean production"
+        ) +
+        theme(
+            axis.text.y = element_text(size = 11)
+        ),
+    widths = c(2, 1)
+)
+
+##----4C: Time-series: number of samples over time-----
+p_4c <- p_nsamples_over_time_cumsum
+p_4c$layers[[3]] <- NULL
+p_4c <- p_4c +
+    labs(
+        subtitle = "Samples that were filtered out in the SEA v2 were not included"
+    ) +
+    annotate(
+        "text",
+        x = as.Date("2015-01-01"), y = 3500,
+        label = "Last download for the SEA v1",
+        color = "gray20"
+    )
+
+
+##----4D: sequencing stats----
+p_4d <- p_seqtech_layout_count +
+    labs(title = "Summary sequencing statistics") +
+    theme(
+        axis.text.y = element_text(size = 11),
+        strip.text.y = element_text(size = 11)
+    )
+
+
+## Combine plots
+fig4 <- wrap_plots(
+    p_4ab,
+    wrap_plots(p_4c, p_4d),
+    nrow = 2
+) +
+    plot_annotation(tag_levels = list(c("A", "B", "C", "D")))
+
+
+## Save figure 4
+ggsave(
+    fig4, filename = here("products", "figs", "figure4.png"),
+    width = 15, height = 12, dpi = 300
+)
+
+ggsave(
+    fig4, filename = here("products", "figs", "figure4.pdf"),
+    width = 13, height = 12
+)
+
+
+#----Supplementary Figure S1----------------------------------------------------
+## Load data
+load(here("products", "plots", "p_pca_percent_var.rda"))
+load(here("products", "plots", "p_fit_mean_var.rda"))
+
+## Combine plots
+sf1 <- wrap_plots(p_fit_mean_var, p_pca_percent_var) +
+    plot_annotation(tag_levels = "A")
+
+## Save figure    
+ggsave(
+    sf1, 
+    file = here("products", "figs", "supplementary_figure1.png"),
+    width = 15, height = 9, dpi = 300
+)
+
+ggsave(
+    sf1, 
+    file = here("products", "figs", "supplementary_figure1.pdf"),
+    width = 15, height = 9
+)
+
+
+#----Supplementary Figure S2----------------------------------------------------
+## Load data
+load(here("products", "plots", "p_heatmap_terms_pav.rda"))
+
+sf2 <- as.ggplot(p_heatmap_terms_pav)
+
+ggsave(
+    sf2, 
+    file = here("products", "figs", "supplementary_figure2.pdf"),
+    width = 10, height = 12
+)
+
+image_read_pdf(here("products", "figs", "supplementary_figure2.pdf")) |>
+    image_write(
+        path = here("products", "figs", "supplementary_figure2.png"),
+        density = 300
+    )
+
+#----Supplementary Figure S3----------------------------------------------------
+## Load data
+load(here("products", "plots", "p_bodypart_timeseries.rda"))
+load(here("products", "plots", "p_layout_timeseries.rda"))
+load(here("products", "plots", "p_seqtech_timeseries.rda"))
+
+
+## Combine plots
+sf3 <- wrap_plots(
+    p_bodypart_timeseries +
+        guides(color = guide_legend(ncol = 1)) +
+        theme(legend.position = "right"),
+    p_layout_timeseries + 
+        guides(color = guide_legend(ncol = 1)) +
+        theme(legend.position = "right"),
+    p_seqtech_timeseries +
+        guides(color = guide_legend(ncol = 1)) +
+        theme(legend.position = "right"),
+    nrow = 3
+) +
+    plot_annotation(tag_levels = "A")
+
+
+## Save figure
+ggsave(
+    sf3, 
+    file = here("products", "figs", "supplementary_figure3.png"),
+    width = 9, height = 11, dpi = 300
+)
+
+ggsave(
+    sf2, 
+    file = here("products", "figs", "supplementary_figure2.pdf"),
+    width = 9, height = 11
+)
+```
+
+## Creating paper tables
+
+Below you can find the code used to create the tables in the paper.
+
+```{r}
+library(here)
+library(tidyverse)
+set.seed(123)
+
+load(here("data", "metadata_atlas_v2_downloaded.rda"))
+
+#----Supplementary Table S1-----------------------------------------------------
+## Sequence QC stats
+load(here("products", "result_files", "fastp_stats.rda"))
+sup_table1 <- fastp_stats |>
+    dplyr::rename(Run = Sample) |>
+    left_join(
+        metadata_atlas_v2_downloaded |>
+            select(BioSample, Run, BioProject)
+    ) |>
+    dplyr::select(BioProject, BioSample, Run, 3:24)
+
+write_tsv(
+    sup_table1,
+    file = here("products", "tables", "supplementary_table_S1.tsv")
+)
+
+#----Supplementary Table S2----------------------------------------------------
+## Mapping stats
+load(here("products", "result_files", "mapping_rate_salmon.rda"))
+
+sup_table2 <- metadata_atlas_v2_downloaded |>
+    select(BioSample, BioProject) |>
+    inner_join(mapping_rate)
+
+write_tsv(
+    sup_table2,
+    file = here("products", "tables", "supplementary_table_S2.tsv")
+)
+```
+
+

@@ -1,0 +1,53 @@
+
+on:
+  push:
+    branches: master
+
+name: Render and Publish
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          # To install LaTeX to build PDF book 
+          tinytex: true 
+          
+      - name: Setup R 
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.0' 
+          
+      # - name: Install R packages
+      #   uses: r-lib/actions/setup-r-dependencies@v2
+      #   with:
+      #     packages:
+      #       any::knitr
+      #       any::rmarkdown
+      #       any::downlit
+      #       any::xml2
+      #       any::ggplot2
+      #       any::patchwork
+      #       any::ggtree
+      #       any::ape
+      #       any::phytools
+      #       any::here
+      #       any::phangorn
+      #       any::geiger
+
+
+      # add software dependencies here
+
+
+      - name: Publish to GitHub Pages (and render)
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # this secret is always available for github actions
+      

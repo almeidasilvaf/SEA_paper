@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+code/create_paper*
+code/*.log
+products/figs/*.pdf
+/.quarto/
+/_book/

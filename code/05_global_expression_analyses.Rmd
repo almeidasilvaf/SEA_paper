@@ -1,0 +1,675 @@
+---
+title: "Exploring global expression profiles"
+author:
+- name: Fabricio Almeida-Silva
+  affiliation: VIB-UGent Center for Plant Systems Biology
+output:
+  BiocStyle::pdf_document
+vignette: |
+  %\VignetteIndexEntry{Exploring global expression profiles}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    warning = FALSE, 
+    message = FALSE,
+    eval = TRUE
+)
+```
+
+```{r here}
+set.seed(123) # for reproducibility
+
+# Load required packages
+library(here)
+library(arrow)
+library(BioNERO)
+library(tidyverse)
+library(ComplexHeatmap)
+library(patchwork)
+library(clusterProfiler)
+library(Biostrings)
+library(planttfhunter)
+```
+
+# Overview
+
+Here, I will describe the code to:
+
+1. Classify genes into expression groups (null expression, weak expression,
+broad expression, and part-specific expression).
+2. Perform functional analyses on part-specific tissues. 
+3. Identify part-specific transcription factors.
+
+```{r echo = FALSE, eval = TRUE}
+load(here("products", "result_files", "median_per_part.rda"))
+load(here("products", "result_files", "final_classified_genes.rda"))
+```
+
+# Classifying genes by expression profiles
+
+In this section, I will calculate the $\tau$ index of tissue-specificity 
+using log-transformed TPM values. Then, I will use the $\tau$ indices
+to classify genes into groups based on their expression profiles.
+First, let's define a function to calculate $\tau$ for each gene.
+
+```{r}
+#' @param x A numeric vector with a gene's mean or median expression values
+#' across tissues
+calculate_tau <- function(x) {
+    
+    tau <- NA
+    if(all(!is.na(x)) & min(x, na.rm = TRUE) >= 0) {
+        tau <- 0
+        if(max(x) != 0) {
+            x <- (1-(x / max(x, na.rm = TRUE)))
+            tau <- sum(x, na.rm = TRUE)
+            tau <- tau / (length(x) - 1)
+        }
+    }
+    
+    return(tau)
+}
+```
+
+Now, I will create an expression matrix with genes in row names and median
+expression per body part in column. This is what we need to calculate $\tau$.
+The `parquet_dir` directory below was downloaded from the FigShare
+repository associated with the publication [@sea_figshare].
+
+```{r eval = FALSE}
+db <- open_dataset(
+    "~/Documents/app_data/parquet_dir"
+)
+
+# Body parts to use - exclude "whole plant" and "unknown"
+parts <- c(
+    "root", "leaf", "shoot", "seedling", "seed", "cotyledon", "embryo",
+    "seed coat", "hypocotyl", "pod", "flower", "endosperm", "suspensor",
+    "nodule", "epicotyl", "radicle", "petiole"
+)
+
+# Create a vector of all gene IDs and split it into a list of 100 vectors
+chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE))
+
+genes <- db |>
+    select(Gene) |>
+    unique() |> 
+    collect() |>
+    pull(Gene) |>
+    chunk(n = 100)
+
+
+# Get median expression per tissue
+median_per_part_long <- Reduce(rbind, lapply(seq_along(genes), function(x) {
+    message("Working on set ", x)
+    df <- db |>
+        select(Gene, Sample, TPM, Part) |>
+        filter(Part %in% parts) |>
+        filter(Gene %in% genes[[x]]) |>
+        group_by(Part, Gene) |>
+        summarise(
+            Median = median(TPM)
+        ) |>
+        ungroup() |>
+        collect()
+    
+    return(df)
+}))
+
+median_per_part <- pivot_wider(
+    median_per_part_long, names_from = Part, values_from = Median
+) |>
+    tibble::column_to_rownames("Gene") |>
+    as.matrix()
+```
+
+Before calculating $\tau$, I will exclude genes that are not expressed in any
+part. Here, "expressed genes" will be considered genes with median TPM >=1
+in a body part.
+
+```{r}
+# Remove genes with median TPM <1 in all body parts
+remove <- apply(median_per_part, 1, function(x) all(x<1))
+final_median_per_part <- median_per_part[!remove, ]
+
+# Calculate Tau indices
+tau <- apply(log2(final_median_per_part + 1), 1, calculate_tau)
+```
+
+Now, I will classify genes into the following categories:
+
+1. **Null expression:** median TPM <1 in all tissues.
+2. **Weak expression:** median TPM <5 in all tissues.
+3. **Broadly expressed:** Tau <0.85.
+4. **Body part-specific:** Tau >=0.85.
+
+```{r}
+# Create a long data frame of genes and medians per tissue
+genes_median <- reshape2::melt(median_per_part) |>
+    dplyr::rename(Gene = Var1, Part = Var2, Median = value)
+
+# Create a data frame of genes and tau
+genes_tau <- data.frame(
+    Gene = names(tau),
+    Tau = as.numeric(tau)
+)
+
+# Classify genes
+## Classify genes into categories
+classified_genes <- left_join(genes_median, genes_tau) |>
+    ## In how many parts is each gene expressed (TPM >1) and stably expressed (TPM >5)?
+    group_by(Gene) |>
+    mutate(
+        N_expressed = sum(Median > 1),
+        N_stable = sum(Median > 5)
+    ) |>
+    ## Classify genes
+    mutate(
+        Classification = case_when(
+            N_expressed == 0 ~ "Null",
+            N_stable == 0 ~ "Weak",
+            N_stable >= 1 & Tau < 0.85 ~ "Broad",
+            N_stable >= 1 & Tau >= 0.85 ~ "Specific"
+        )
+    ) |>
+    ungroup()
+    
+## In which parts are body part-specific genes specifically expressed?
+specific_genes_and_parts <- classified_genes |>
+    filter(Classification == "Specific" & Median > 5) |>
+    group_by(Gene) |>
+    summarise(
+        Specific_parts = str_c(Part, collapse = ",")
+    )
+    
+# Combine everything (classification + tissues) into a single data frame
+final_classified_genes <- classified_genes |>
+    select(Gene, Tau, Classification) |>
+    distinct(Gene, .keep_all = TRUE) |>
+    left_join(specific_genes_and_parts) |>
+    arrange(Classification, Gene)
+
+# Exploring classification visually
+p_genes_per_group <- final_classified_genes |>
+    janitor::tabyl(Classification) |>
+    mutate(
+        Classification = factor(
+            Classification, levels = c("Null", "Weak", "Broad", "Specific")
+        )
+    ) |>
+    ggplot(aes(x = n, y = Classification)) +
+    geom_bar(stat = "identity", fill = ggsci::pal_jama()(4)) +
+    geom_text(aes(label = n), hjust = -0.2) +
+    theme_minimal() +
+    labs(
+        title = "Number of genes per expression category",
+        x = "# of genes", y = ""
+    ) +
+    xlim(0, 35000)
+
+p_genes_per_group
+```
+
+Now, let's make an UpSet plot to see the patterns of body part specificity
+across genes.
+
+```{r}
+# Create a list of body parts and their specific genes
+specific_genes_list <- final_classified_genes |>
+    filter(!is.na(Specific_parts)) |>
+    select(Gene, Specific_parts) |>
+    mutate(Specific_parts = str_to_title(Specific_parts)) |>
+    separate_longer_delim(Specific_parts, delim = ",") |>
+    as.data.frame()
+
+specific_genes_list <- split(
+    specific_genes_list$Gene,
+    specific_genes_list$Specific_parts
+)
+
+# Create a combination matrix and filter it
+comb_matrix <- make_comb_mat(specific_genes_list)
+sizes <- comb_size(comb_matrix)
+mat <- comb_matrix[sizes >= 10]
+degree <- comb_degree(mat)
+palette <- ggsci::pal_npg()(length(unique(degree)))
+
+p_upset <- UpSet(
+    mat,
+    comb_col = palette[degree],
+    top_annotation = upset_top_annotation(
+        mat, add_numbers = TRUE, numbers_rot = 45
+    )
+)
+
+p_upset
+```
+
+We can also plot a heatmap of median expression profiles per part for all
+part-specific genes.
+
+```{r}
+# Create expression matrix to plot with metadata
+ts_genes <- final_classified_genes |>
+    filter(Classification == "Specific") |>
+    pull(Gene)
+
+colnames(median_per_part) <- str_to_title(colnames(median_per_part))
+exp_matrix <- log2(median_per_part[ts_genes, ] + 1)
+
+# Plot median expression profiles with annotation per group
+pal <- colorRampPalette(RColorBrewer::brewer.pal(9, "Greens"))(100)
+p_heatmap_median <- ComplexHeatmap::pheatmap(
+    t(exp_matrix),
+    name = "Log2 TPM",
+    main = "Median expression of body part-specific genes",
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    color = pal
+)
+
+p_heatmap_median
+```
+
+
+# Functional enrichment of part-specific genes
+
+Here, I will perform a functional enrichment analysis to find
+overrepresented GO terms, protein domains, and MapMan bins in the
+sets of part-specific genes. 
+
+I will start by downloading and processing the functional annotation
+data from PLAZA 5.0 Dicots.
+
+```{r}
+# Download functional annotation from PLAZA 5.0
+base_url <- "https://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_05"
+
+## GO
+go <- read_tsv(
+    file.path(base_url, "GO/go.gma.csv.gz"), skip = 8
+) 
+go <- list(
+    term2gene = go |> select(GO = go, Gene = `#gene_id`),
+    term2name = go |> select(GO = go, Description = description)
+)
+
+## InterPro domains
+interpro <- read_tsv(
+    file.path(base_url, "InterPro/interpro.gma.csv.gz"), skip = 8
+) 
+interpro <- list(
+    term2gene = interpro |> select(InterPro = motif_id, Gene = `#gene_id`),
+    term2name = interpro |> select(InterPro = motif_id, Description = description)
+)
+
+## MapMan
+mapman <- read_tsv(
+    file.path(base_url, "MapMan/mapman.gma.csv.gz"), skip = 8
+) 
+mapman <- list(
+    term2gene = mapman |> select(MapMan = mapman, Gene = gene_id),
+    term2name = mapman |> select(MapMan = mapman, Description = desc)
+)
+```
+
+Next, I will perform overrepresentation analyses for each set of
+part-specific genes (i.e,, elements of `specific_genes_list`).
+As background, we will use all genes that are expressed in at
+least one body part.
+
+```{r eval = FALSE}
+# Define background
+background <- final_classified_genes |>
+    filter(Classification != "Null") |>
+    pull(Gene) |> 
+    unique()
+
+# Perform ORA
+enrich_results <- lapply(specific_genes_list, function(x) {
+    
+    go_enrich <- enricher(
+        x, universe = background,
+        qvalueCutoff = 0.05,
+        TERM2GENE = go$term2gene, TERM2NAME = go$term2name
+    )
+    
+    interpro_enrich <- enricher(
+        x, universe = background,
+        qvalueCutoff = 0.05,
+        TERM2GENE = interpro$term2gene, TERM2NAME = interpro$term2name
+    )
+    
+    mapman_enrich <- enricher(
+        x, universe = background,
+        qvalueCutoff = 0.05,
+        TERM2GENE = mapman$term2gene, TERM2NAME = mapman$term2name
+    )
+    
+    final_df <- rbind(
+        as.data.frame(go_enrich) |> mutate(Category = "GO"), 
+        as.data.frame(interpro_enrich) |> mutate(Category = "InterPro"), 
+        as.data.frame(mapman_enrich) |> mutate(Category = "MapMan")
+    )
+    return(final_df)
+})
+
+# Combine results into a single data frame
+enrichment_df <- Reduce(rbind, lapply(seq_along(enrich_results), function(x) {
+    
+    part <- names(enrich_results)[x]
+    df <- enrich_results[[x]]
+    df$Part <- part
+    
+    return(df)
+}))
+
+enrichment_df <- enrichment_df |>
+    filter(p.adjust <= 0.01)
+
+write_tsv(
+    enrichment_df, 
+    file = here("products", "tables", "enrichment_df.tsv")
+)
+```
+
+After a careful inspection of the enrichment results, I found the following
+enriched processes for each set of part-specific genes:
+
+1. **Cotyledon:** seed maturation, seed germination, long-chain 
+fatty acid biosynthesis, gibberelin biosynthesis, proteinase inhibitors,
+lipoxygenase, cupin, lipid droplets, response to dessication, 
+oxylipin biosynthesis, diterpenoid biosynthesis, response to ABA.
+
+2. **Embryo:** seed maturation, seed germination, lipid droplet, response to
+ABA, response to dessication, long-chain fatty acid biosynthesis,
+proteinase inhibitors, oxylipin biosynthesis, oleosin, cupin, chaperones.
+
+3. **Endosperm:** lipid transport, xyloglucan metabolism, hemicellulose 
+metabolism, lipid transfer protein, pectinesterase inhibitor, 
+fructosidase inhibitor, invertase inhibitor, glycoside hydrolase 16,
+beta-1,3-glucanase, defensin.
+
+4. **Epicotyl:** SAUR, arabinogalactan protein, FAS1 domain,
+metallopeptidase, ubiquitin ligase, programmed cell death.
+
+5. **Flower:** pollen wall assembly, cell wall modification, 
+carboxylic ester hydrolase, floral identity, floral development,
+stamen development, androecium development, pollen tube development,
+mucilage pectin biosynthesis, pectate lyase, carpel development,
+floral meristem determinancy, gynoecium development, cell tip growth,
+actin filament organization, anther wall tapetum development, 
+plant ovule development, cytokinin catabolism, 
+very-long-chain 3-ketoacyl-CoA synthase, glycoside hydrolase 28,
+SWEET sugar transporter, thiolase, cutin synthase.
+
+6. **Hypocotyl:** peroxidase, haem peroxidase, cytochrome P450 superfamily,
+sugar transporter ERD6, iron binding, cupin.
+
+7. **Leaf:** chloroplast localization, terpene synthase, WEB family,
+proteinase inhibitor I3, glucose-1-phosphate adenylyltransferase,
+starch metabolism.
+
+8. **Nodule:** peroxidase, leucine biosynthesis, MFS transporter superfamily,
+auxin biosynthesis, Nin-like superfamily, symbiosis signaling, germin.
+
+9. **Petiole:** NAD+ nucleosidase, diterpenoid biosynthesis, 
+SAUR, growth factor activity, FAS1 domain, TIR domain, NB-ARC, 
+effector-triggered immunity, cell wall organization.
+
+10. **Pod:** fruit ripening, glyoxylate metabolism, 
+phosphatidylethanolamine-binding protein family, NB-ARC, 
+phospholipid/glycerol acyltransferase, apoptotic protease-activating factors.
+
+11. **Radicle:** lipid storage, seed maturation, seed germination, anaerobic
+respiration, seedling development, heat-shock protein, proteinase inhibitor,
+ethylene insensitive 3 family, oleosin.
+
+12. **Root:** peroxidase, Casparian strip membrane protein, secondary cell wall,
+cell-cell junction assembly, phenylpropanoid biosynthesis, lignin metabolism,
+response to cytokinin, ABC transporter, cupin, laccase, lipid transfer protein,
+glycoside hydrolase 1, Fe(2+)-2OG dioxygenase, polyketide synthase, CAP domain,
+phytocyanin domain.
+
+13. **Seed:** seed germination, seed maturation, lipid storage, lipid droplets,
+proteinase inhibitor, protein storage, olylipin biosynthesis,
+long-chain fatty acid biosynthesis, oleosin.
+
+14. **Seed coat:** seed coat development, flavonoid biosynthesis, 
+amine-lyase activity, xenobiotic transport, lignin catabolism, 
+SWEET sugar transporter, defensin, glycoside hydrolase 27, expansin,
+proteinase inhibitor.
+
+15. **Seedling:** glyoxylate metabolism, peroxidase, cytochrome P450, 
+cupin, lipid transfer protein, sugar/inosotil transporter,
+expansin, FAD-linked oxidase.
+
+16. **Shoot:** terpene synthase, SAUR, metallopeptidase, WEB family,
+SPX family.
+
+17. **Suspensor:** root meristem growth, growth factor, defensin-like protein,
+lipid localization.
+
+
+To summarize the results in a clearer way, let's visualize the biological 
+processes associated with each part as a presence/absence heatmap.
+
+```{r, fig.height=14, fig.width=7}
+# Create a list of vectors with terms associated with each gene set
+terms_list <- list(
+    Cotyledon = c(
+        "seed maturation", "seed germination", "gibberelin biosynthesis",
+        "long-chain fatty acid biosynthesis", "proteinase inhibitor",
+        "lipoxygenase", "cupin", "lipid droplets", "response to dessication",
+        "oxylipin biosynthesis", "diterpenoid biosynthesis", "response to ABA"
+    ),
+    Embryo = c(
+        "seed maturation", "seed germination", "lipid droplets", 
+        "response to ABA", "long-chain fatty acid biosynthesis",
+        "proteinase inhibitor", "oxylipin biosynthesis", "oleosin",
+        "cupin", "chaperone"
+    ),
+    Endosperm = c(
+        "lipid transport", "xyloglucan metabolism", "hemicellulose metabolism",
+        "lipid transfer protein", 
+        "pectinesterase inhibitor", 
+        "invertase inhibitor",
+        "beta-1,3-glucanase", "defensin"
+    ),
+    Epicotyl = c(
+        "SAUR", "arabinogalactan protein",
+        "metallopeptidase", "programmed cell death"
+    ),
+    Flower = c(
+        "cell wall organization", "floral identity", 
+        "stamen development", "androecium development", 
+        "pollen tube development", "mucilage pectin biosynthesis", 
+        "carpel development", 
+        "gynoecium development", 
+        "anther wall tapetum development",
+        "plant ovule development", "cytokinin catabolism", 
+        "3-ketoacyl-CoA synthase", "glycoside hydrolase 28",
+        "SWEET sugar transporter", "thiolase", "cutin synthase"
+    ),
+    Hypocotyl = c(
+        "peroxidase", "haem peroxidase", "cytochrome P450",
+        "sugar transporter ERD6", "cupin"
+    ),
+    Leaf = c(
+        "chloroplast localization", "terpene synthase", "WEB family",
+        "proteinase inhibitor", "G1P adenylyltransferase",
+        "starch metabolism"
+    ),
+    Nodule = c(
+        "peroxidase", "leucine biosynthesis", "auxin biosynthesis", 
+        "Nin-like superfamily", "symbiosis signaling", "germin"
+    ),
+    Petiole = c(
+        "diterpenoid biosynthesis", "SAUR", 
+        "growth factor", "TIR domain", "NB-ARC", 
+        "cell wall organization"
+    ),
+    Pod = c(
+        "fruit ripening", "glyoxylate metabolism", 
+        "NB-ARC",
+        "phospholipid/glycerol acyltransferase", 
+        "apoptotic protease-activating factors"
+    ),
+    Radicle = c(
+        "seed maturation", "seed germination", 
+        "anaerobic respiration", "seedling development", "heat-shock protein", 
+        "proteinase inhibitor", "ethylene insensitive 3 family", "oleosin"
+    ),
+    Root = c(
+        "peroxidase", "Casparian strip membrane protein", "secondary cell wall",
+        "cell-cell junction assembly", "phenylpropanoid biosynthesis", 
+        "lignin metabolism", "response to cytokinin", "ABC transporter", 
+        "cupin", "laccase", "lipid transfer protein", "glycoside hydrolase 1",
+        "Fe(2+)-2OG dioxygenase", "polyketide synthase", 
+        "phytocyanin domain"
+    ),
+    `Seed Coat` = c(
+        "seed coat development", "flavonoid biosynthesis", 
+        "lignin catabolism", 
+        "SWEET sugar transporter", "defensin", "glycoside hydrolase 27", 
+        "expansin", "proteinase inhibitor"
+    ),
+    Seedling = c(
+        "glyoxylate metabolism", "peroxidase", "cytochrome P450", 
+        "cupin", "lipid transfer protein", "sugar/inosotil transporter",
+        "expansin"
+    ),
+    Shoot = c(
+        "terpene synthase", "SAUR", "metallopeptidase", "WEB family"
+    ),
+    Suspensor = c(
+        "root meristem growth", "growth factor", "defensin",
+        "lipid localization"
+    )
+) 
+
+# Create a binary (i.e., presence/absence) matrix from list
+pam <- ComplexHeatmap::list_to_matrix(terms_list)
+
+# Plot heatmap
+p_heatmap_terms_pav <- ComplexHeatmap::pheatmap(
+    pam, color = c("grey90", "grey10"),
+    border_color = "white",
+    name = "Presence/Absence",
+    main = "Enriched terms for part-specific genes",
+    fontsize_row = 9,
+    breaks = c(0, 0.5, 1),
+    legend_breaks = c(0, 1)
+)
+
+# Change height and width of the column and row dendrograms, respectively
+p_heatmap_terms_pav@row_dend_param$width <- unit(5, "mm")
+p_heatmap_terms_pav@column_dend_param$height <- unit(5, "mm")
+
+p_heatmap_terms_pav
+```
+
+# Identifying part-specific transcription factors
+
+Lastly, I will identify transcription factors among part-specific genes 
+and explore their families to find the putative regulators of each part's
+transcriptional programs.
+
+```{r fig.width=10}
+# Get TF list from PlantTFDB
+gma_tfs <- read_tsv(
+    "http://planttfdb.gao-lab.org/download/TF_list/Gma_TF_list.txt.gz"
+) |>
+    select(Gene = Gene_ID, Family) |>
+    distinct(Gene, .keep_all = TRUE)
+    
+# Count number of TFs per family among part-specific genes
+tf_counts <- inner_join(
+    final_classified_genes |> dplyr::filter(Classification == "Specific"),
+    gma_tfs
+) |>
+    select(Gene, Family, Specific_parts) |>
+    mutate(Specific_parts = str_to_title(Specific_parts)) |>
+    separate_longer_delim(Specific_parts, delim = ",") |>
+    group_by(Specific_parts) |>
+    count(Family, .drop = FALSE) |>
+    pivot_wider(names_from = Family, values_from = n) |>
+    tibble::column_to_rownames("Specific_parts") |>
+    as.matrix()
+    
+tf_counts[is.na(tf_counts)] <- 0
+
+# Plot heatmap
+pal <- colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(100)[1:70]
+p_heatmap_specific_tfs <- ComplexHeatmap::pheatmap(
+    log2(tf_counts + 1),
+    color = pal,
+    display_numbers = tf_counts,
+    border_color = "gray90",
+    name = "Log2 counts",
+    main = "Transcription factors among part-specific genes"
+)
+
+p_heatmap_specific_tfs
+```
+
+To wrap it all up, I will save the objects with plots and important results 
+to files, so that they can be easily explored later.
+
+```{r eval = FALSE}
+save(
+    median_per_part, compress = "xz", 
+    file = here("products", "result_files", "median_per_part.rda")
+)
+
+save(
+    final_classified_genes, compress = "xz",
+    file = here("products", "result_files", "final_classified_genes.rda")
+)
+
+save(
+    enrichment_df, compress = "xz",
+    file = here("products", "result_files", "enrichment_df.rda")
+)
+
+save(
+    p_genes_per_group, compress = "xz",
+    file = here("products", "plots", "p_genes_per_group.rda")
+)
+
+save(
+    p_upset, compress = "xz",
+    file = here("products", "plots", "p_upset.rda")
+)
+
+save(
+    p_heatmap_median, compress = "xz",
+    file = here("products", "plots", "p_heatmap_median.rda")
+)
+
+save(
+    p_heatmap_terms_pav, compress = "xz",
+    file = here("products", "plots", "p_heatmap_terms_pav.rda")
+)
+
+save(
+    p_heatmap_specific_tfs, compress = "xz",
+    file = here("products", "plots", "p_heatmap_specific_tfs.rda")
+)
+```
+
+
+# Session information {.unnumbered}
+
+This document was created under the following conditions:
+
+```{r sessioninfo, eval = TRUE}
+sessioninfo::session_info()
+```
+
+## References {.unnumbered}
+
