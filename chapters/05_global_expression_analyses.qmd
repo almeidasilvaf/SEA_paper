@@ -5,7 +5,6 @@ execute:
   warning: false
 ---
 
-
 # Exploring global expression profiles
 
 Here, I will describe the code to:

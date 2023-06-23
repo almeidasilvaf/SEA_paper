@@ -488,6 +488,60 @@ save(
 )
 ```
 
+### gene_metadata.rda
+
+This file contains a data frame with metadata on genes, including $\tau$
+indices of tissue-specificity, expression-based classification, specific parts
+where the gene is expressed, protein domains, and a1.v1 IDs.
+
+```{r}
+base_url <- "https://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_05"
+
+# Get ID correspondence between a4.v1 and a1.v1
+id_correspondence <- read_tsv(
+    file.path(base_url, "IdConversion/id_conversion.gma.csv.gz"), 
+    skip = 8, 
+    show_col_types = FALSE
+) |>
+    filter(id_type == "synonym") |>
+    select(Gene = `#gene_id`, ID_a1.v1 = id)
+
+
+# Get InterPro domain annotation from PLAZA 5.0 Dicots
+interpro <- read_tsv(
+    file.path(base_url, "InterPro/interpro.gma.csv.gz"), skip = 8
+) |>
+    select(Gene = `#gene_id`, Domain = motif_id) |>
+    group_by(Gene) |>
+    summarise(Domain = str_c(Domain, collapse = ","))
+
+# Get expression groups info
+load(here("products", "result_files", "final_classified_genes.rda"))
+expression_groups <- final_classified_genes |>
+    mutate(
+        Classification = as.factor(Classification),
+        Specific_parts = replace_na(Specific_parts, "-"),
+        Specific_parts = as.factor(Specific_parts)
+    )
+
+
+# Combine everything in a single data frame
+gene_metadata <- expression_groups |>
+    left_join(interpro) |>
+    left_join(id_correspondence) |>
+    mutate(
+        Domain = replace_na(Domain, "-"),
+        ID_a1.v1 = replace_na(ID_a1.v1, "-"),
+        Tau = signif(Tau, 3)
+    ) |>
+    as.data.frame() 
+
+save(
+    gene_metadata, compress = "xz",
+    file = here("app_data", "gene_metadata.rda")
+)
+```
+
 
 ## Session information {.unnumbered}
 
