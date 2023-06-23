@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>The Soybean Expression Atlas v2: code and data - 2&nbsp; Analyzing quantitative data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/03_exploring_summary_stats.html" rel="next">
+<link href="../chapters/01_creating_the_SEA_v2.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Analyzing quantitative data</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">The Soybean Expression Atlas v2: code and data</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Preface</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01_creating_the_SEA_v2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Creating the Soybean Expression Atlas v2</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02_analyzing_quantitative_data.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Analyzing quantitative data</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03_exploring_summary_stats.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Load required packages</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04_create_app_data_directory.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Creating a directory with data for the Shiny app</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05_global_expression_analyses.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Exploring global expression profiles</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/appendices.html" class="sidebar-item-text sidebar-link">Appendices</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#from-salmon-quant.sf-files-to-summarizedexperiment" id="toc-from-salmon-quant.sf-files-to-summarizedexperiment" class="nav-link active" data-scroll-target="#from-salmon-quant.sf-files-to-summarizedexperiment"> <span class="header-section-number">2.1</span> From salmon <code>quant.sf</code> files to <code>SummarizedExperiment</code></a></li>
+  <li><a href="#dimensionality-reduction" id="toc-dimensionality-reduction" class="nav-link" data-scroll-target="#dimensionality-reduction"> <span class="header-section-number">2.2</span> Dimensionality reduction</a>
+  <ul class="collapse">
+  <li><a href="#feature-selection" id="toc-feature-selection" class="nav-link" data-scroll-target="#feature-selection"> <span class="header-section-number">2.2.1</span> Feature selection</a></li>
+  <li><a href="#principal-components-analysis-pca" id="toc-principal-components-analysis-pca" class="nav-link" data-scroll-target="#principal-components-analysis-pca"> <span class="header-section-number">2.2.2</span> Principal components analysis (PCA)</a></li>
+  <li><a href="#t-stochastic-neighbor-embedding-t-sne" id="toc-t-stochastic-neighbor-embedding-t-sne" class="nav-link" data-scroll-target="#t-stochastic-neighbor-embedding-t-sne"> <span class="header-section-number">2.2.3</span> <em>t</em>-stochastic neighbor embedding (t-SNE)</a></li>
+  <li><a href="#uniform-manifold-approximation-and-projection-umap" id="toc-uniform-manifold-approximation-and-projection-umap" class="nav-link" data-scroll-target="#uniform-manifold-approximation-and-projection-umap"> <span class="header-section-number">2.2.4</span> Uniform manifold approximation and projection (UMAP)</a></li>
+  </ul></li>
+  <li><a href="#session-info" id="toc-session-info" class="nav-link" data-scroll-target="#session-info">Session info</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Analyzing quantitative data</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<p>Here, I will describe the code to:</p>
+<ol type="1">
+<li>Read and parse quantitative data from <strong>salmon</strong> output files.</li>
+<li>Perform dimensionality reduction with UMAP and t-SNE.</li>
+</ol>
+<p>First of all, let’s load required packages and data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># for reproducibility</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load packages</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bears)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GenomicFeatures)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SummarizedExperiment)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SingleCellExperiment)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scater)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scran)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DESeq2)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ds.rda"</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>final_metadata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"tables"</span>, <span class="st">"final_metadata_classified_atlas_v2.tsv"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">header =</span> <span class="cn">TRUE</span>, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Run, Experiment))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="from-salmon-quant.sf-files-to-summarizedexperiment" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="from-salmon-quant.sf-files-to-summarizedexperiment"><span class="header-section-number">2.1</span> From salmon <code>quant.sf</code> files to <code>SummarizedExperiment</code></h2>
+<p>Here, we will obtain a <code>SummarizedExperiment</code> object containing gene-level transcript abundances in TPM and bias-corrected counts. Counts will be obtained using the “bias correction without an offset” method from the Bioconductor package <code>tximport</code>.</p>
+<p>To create the <code>SummarizedExperiment</code> object, we will need a 2-column data frame of transcript-to-gene mapping. Let’s create it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame of transcript-to-gene mapping</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>tx <span class="ot">&lt;-</span> Biostrings<span class="sc">::</span><span class="fu">readDNAStringSet</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"gmax_transcriptome.fa.gz"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>tx2gene <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">TXNAME =</span> <span class="fu">gsub</span>(<span class="st">" </span><span class="sc">\\</span><span class="st">|.*"</span>, <span class="st">""</span>, <span class="fu">names</span>(tx)),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">GENEID =</span> <span class="fu">gsub</span>(<span class="st">".*</span><span class="sc">\\</span><span class="st">| "</span>, <span class="st">""</span>, <span class="fu">names</span>(tx))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    tx2gene, <span class="at">compress =</span> <span class="st">"xz"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"tx2gene.rda"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we can get the <code>SummarizedExperiment</code> object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get gene-level transcript abundance estimates from salmon</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## "Bias correction without an offset" method</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>se_atlas_gene <span class="ot">&lt;-</span> <span class="fu">salmon2se</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    final_metadata,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">level =</span> <span class="st">"gene"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">salmondir =</span> ds<span class="sc">$</span>salmondir,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">tx2gene =</span> tx2gene</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">assay</span>(se_atlas_gene, <span class="st">"gene_counts"</span>) <span class="ot">&lt;-</span> <span class="fu">round</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">assay</span>(se_atlas_gene, <span class="st">"gene_counts"</span>) </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="do">## "Original counts and offset" method</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">file.path</span>(ds<span class="sc">$</span>salmondir, final_metadata<span class="sc">$</span>BioSample, <span class="st">"quant.sf"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>se_atlas_gene_offset <span class="ot">&lt;-</span> tximport<span class="sc">::</span><span class="fu">tximport</span>(</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    files, <span class="at">type =</span> <span class="st">"salmon"</span>, <span class="at">tx2gene =</span> tx2gene</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(se_atlas_gene_offset<span class="sc">$</span>abundance) <span class="ot">&lt;-</span> final_metadata<span class="sc">$</span>BioSample</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(se_atlas_gene_offset<span class="sc">$</span>counts) <span class="ot">&lt;-</span> final_metadata<span class="sc">$</span>BioSample</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(se_atlas_gene_offset<span class="sc">$</span>length) <span class="ot">&lt;-</span> final_metadata<span class="sc">$</span>BioSample</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Get transcript-level transcript abundance estimates from salmon</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>se_atlas_transcript <span class="ot">&lt;-</span> <span class="fu">salmon2se</span>(</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    final_metadata,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">level =</span> <span class="st">"transcript"</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">salmondir =</span> ds<span class="sc">$</span>salmondir</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Save gene-level and transcript-level</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    se_atlas_gene, <span class="at">compress =</span> <span class="st">"xz"</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"se_atlas_gene.rda"</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    se_atlas_gene_offset, <span class="at">compress =</span> <span class="st">"xz"</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"se_atlas_gene_offset.rda"</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    se_atlas_transcript, <span class="at">compress =</span> <span class="st">"xz"</span>,</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"se_atlas_transcript.rda"</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Save final and complete sample metadata data frame</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>sample_metadata_complete <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">colData</span>(se_atlas_gene))</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    sample_metadata_complete, <span class="at">compress =</span> <span class="st">"xz"</span>,</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"sample_metadata_complete.rda"</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="dimensionality-reduction" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="dimensionality-reduction"><span class="header-section-number">2.2</span> Dimensionality reduction</h2>
+<p>Now, we will perform dimensionality reduction on highly variable genes with PCA, t-SNE, and UMAP. To increase speed and avoid noise, we will use the PCs computed with the PCA as input to t-SNE and UMAP.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load SummarizedExperiment object containing counts per gene</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"products"</span>, <span class="st">"result_files"</span>, <span class="st">"se_atlas_gene.rda"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="feature-selection" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="feature-selection"><span class="header-section-number">2.2.1</span> Feature selection</h3>
+<p>To maximize biological signal and reduce noise, we will only use highly variable genes for dimensionality reduction. Here, we will pick the top 5000 of genes with the highest biological components.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a SingleCellExperiment with counts and log-normalized counts</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>atlas_counts_sce <span class="ot">&lt;-</span> <span class="fu">SingleCellExperiment</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">assays =</span> <span class="fu">list</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">counts =</span> <span class="fu">assay</span>(se_atlas_gene, <span class="st">"gene_counts"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">logcounts =</span> <span class="fu">log2</span>(<span class="fu">assay</span>(se_atlas_gene, <span class="st">"gene_counts"</span>) <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    ), </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">colData =</span> <span class="fu">colData</span>(se_atlas_gene)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Modeling the mean-variance relationship and visualizing the fit</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>mean_var_model <span class="ot">&lt;-</span> <span class="fu">modelGeneVar</span>(atlas_counts_sce)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>fit_mean_var <span class="ot">&lt;-</span> <span class="fu">metadata</span>(mean_var_model)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>p_fit_mean_var <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> fit_mean_var<span class="sc">$</span>mean,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">var =</span> fit_mean_var<span class="sc">$</span>var,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">trend =</span> fit_mean_var<span class="sc">$</span><span class="fu">trend</span>(fit_mean_var<span class="sc">$</span>mean)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> mean, <span class="at">y =</span> var)) <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> trend), <span class="at">color =</span> <span class="st">"steelblue3"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Per-gene mean-variance relationship"</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Counts were normalized by library size and log-transformed"</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Mean of log-expression"</span>, <span class="at">y =</span> <span class="st">"Variance of log-expression"</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p_fit_mean_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the top 5000 of genes with the highest biological components</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>hvg <span class="ot">&lt;-</span> <span class="fu">getTopHVGs</span>(mean_var_model, <span class="at">n =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The object <code>hvg</code> is a character vector containing the IDs of the top 5000 genes with the highest biological components.</p>
+</section>
+<section id="principal-components-analysis-pca" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="principal-components-analysis-pca"><span class="header-section-number">2.2.2</span> Principal components analysis (PCA)</h3>
+<p>Now, we will perform PCA using the genes in <code>hvg</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform PCA</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>atlas_counts_sce <span class="ot">&lt;-</span> <span class="fu">fixedPCA</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    atlas_counts_sce, <span class="at">subset.row =</span> hvg</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot proportion of variance explained by each PC</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>percent_var <span class="ot">&lt;-</span> <span class="fu">attr</span>(<span class="fu">reducedDim</span>(atlas_counts_sce), <span class="st">"percentVar"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>p_pca_percent_var <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variance =</span> <span class="fu">round</span>(percent_var, <span class="dv">2</span>),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">PC =</span> <span class="fu">factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>, <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> PC, <span class="at">y =</span> Variance)) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> Variance), <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Proportion of variance explained by each PC"</span>,</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"PC"</span>, <span class="at">y =</span> <span class="st">"Variance explained (%)"</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">60</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>p_pca_percent_var</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="576"></p>
+</div>
+</div>
+<p>Based on the plot, we will use only the top 8 PCs for t-SNE and UMAP.</p>
+</section>
+<section id="t-stochastic-neighbor-embedding-t-sne" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="t-stochastic-neighbor-embedding-t-sne"><span class="header-section-number">2.2.3</span> <em>t</em>-stochastic neighbor embedding (t-SNE)</h3>
+<p>Now, we will perform dimensionality reduction with t-SNE using the top 8 PCs obtained previously. We will first test running a t-SNE with 6 different perplexity values: 10, 20, 30, 40, 50, 60. Then, we will select the best.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get and plot t-SNE coordinates (perplexity = 10, 20, 30, 40, 50)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>perplexities <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">60</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>p_tsne <span class="ot">&lt;-</span> <span class="fu">lapply</span>(perplexities, <span class="cf">function</span>(x) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    tsne_coord <span class="ot">&lt;-</span> <span class="fu">runTSNE</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        atlas_counts_sce, <span class="at">perplexity =</span> x,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">dimred =</span> <span class="st">"PCA"</span>, <span class="at">n_dimred =</span> <span class="dv">8</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Color by the variable "Part"</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">plotReducedDim</span>(tsne_coord, <span class="at">dimred =</span> <span class="st">"TSNE"</span>, <span class="at">colour_by =</span> <span class="st">"Part"</span>) <span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">x =</span> <span class="st">"t-SNE 1"</span>, <span class="at">y =</span> <span class="st">"t-SNE 2"</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Perplexity = "</span>, x)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(p)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize all plots</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>p_tsne_all_perplexities_panel <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(p_tsne, <span class="at">nrow =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    ggsci<span class="sc">::</span><span class="fu">scale_color_d3</span>(<span class="st">"category20"</span>) <span class="sc">&amp;</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Part"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p_tsne_all_perplexities_panel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+<p>Based on the plots, we chose <code>perplexity = 60</code> as the best option. Now, let’s create an object containing only the plot for this perplexity value and give it a better title.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot t-SNE with perplexity = 60</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>p_tsne_optimal_perplexity <span class="ot">&lt;-</span> p_tsne_all_perplexities_panel[[<span class="dv">6</span>]] <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"t-SNE plot of all samples in the SEA 2.0"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Coordinates were constructed from the top 8 principal components, with perplexity = 60"</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>p_tsne_optimal_perplexity</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="uniform-manifold-approximation-and-projection-umap" class="level3" data-number="2.2.4">
+<h3 data-number="2.2.4" class="anchored" data-anchor-id="uniform-manifold-approximation-and-projection-umap"><span class="header-section-number">2.2.4</span> Uniform manifold approximation and projection (UMAP)</h3>
+<p>Lastly, we will perform dimensionality reduction with UMAP using the top 8 PCs identified before. Similarly to what we did for t-SNE, we will run UMAP with 6 different values for the “number of neighbors” parameter: 10, 20, 30, 40, 50, and 60. Then, we will look at each plot to choose the best.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run UMAP with n_neighbors = 10, 20, 30, 40, 50</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n_neighbors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>, <span class="dv">60</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>p_umap <span class="ot">&lt;-</span> <span class="fu">lapply</span>(n_neighbors, <span class="cf">function</span>(x) {</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    umap_coord <span class="ot">&lt;-</span> <span class="fu">runUMAP</span>(</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        atlas_counts_sce, <span class="at">n_neighbors =</span> x,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">dimred =</span> <span class="st">"PCA"</span>, <span class="at">n_dimred =</span> <span class="dv">8</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Color by the variable "Part"</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">plotReducedDim</span>(umap_coord, <span class="at">dimred =</span> <span class="st">"UMAP"</span>, <span class="at">colour_by =</span> <span class="st">"Part"</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">x =</span> <span class="st">"UMAP 1"</span>, <span class="at">y =</span> <span class="st">"UMAP 2"</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Number of nearest neighbors = "</span>, x)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(p)</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize all plots</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>p_umap_all_nneighbors_panel <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(p_umap, <span class="at">nrow =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    ggsci<span class="sc">::</span><span class="fu">scale_color_d3</span>(<span class="st">"category20"</span>) <span class="sc">&amp;</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">color =</span> <span class="st">"Part"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>p_umap_all_nneighbors_panel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
+<p>Based on the plots, we chose <code>n_neighbors = 30</code> as the best option. Now, let’s create an object containing the final plot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot UMAP with n_neighbors = 30</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>p_umap_optimal_nneighbors <span class="ot">&lt;-</span> p_umap_all_nneighbors_panel[[<span class="dv">3</span>]] <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"UMAP plot of all samples in the SEA 2.0"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Coordinates were constructed from the top 8 principal components, with n_neighbors = 30"</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p_umap_optimal_nneighbors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="02_analyzing_quantitative_data_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="session-info" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="session-info">Session info</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.3.0 (2023-04-21)
+ os       Ubuntu 20.04.5 LTS
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       Europe/Brussels
+ date     2023-06-23
+ pandoc   3.1.1 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ package              * version   date (UTC) lib source
+ AnnotationDbi        * 1.62.0    2023-04-25 [1] Bioconductor
+ beachmat               2.16.0    2023-04-25 [1] Bioconductor
+ bears                * 0.99.0    2023-06-23 [1] Github (almeidasilvaf/bears@2dbba3d)
+ beeswarm               0.4.0     2021-06-01 [1] CRAN (R 4.3.0)
+ Biobase              * 2.60.0    2023-04-25 [1] Bioconductor
+ BiocFileCache          2.8.0     2023-04-25 [1] Bioconductor
+ BiocGenerics         * 0.46.0    2023-04-25 [1] Bioconductor
+ BiocIO                 1.10.0    2023-04-25 [1] Bioconductor
+ BiocNeighbors          1.18.0    2023-04-25 [1] Bioconductor
+ BiocParallel           1.34.0    2023-04-25 [1] Bioconductor
+ BiocSingular           1.16.0    2023-04-25 [1] Bioconductor
+ biomaRt                2.56.0    2023-04-25 [1] Bioconductor
+ Biostrings             2.68.0    2023-04-25 [1] Bioconductor
+ bit                    4.0.5     2022-11-15 [1] CRAN (R 4.3.0)
+ bit64                  4.0.5     2020-08-30 [1] CRAN (R 4.3.0)
+ bitops                 1.0-7     2021-04-24 [1] CRAN (R 4.3.0)
+ blob                   1.2.4     2023-03-17 [1] CRAN (R 4.3.0)
+ bluster                1.10.0    2023-04-25 [1] Bioconductor
+ cachem                 1.0.8     2023-05-01 [1] CRAN (R 4.3.0)
+ cli                    3.6.1     2023-03-23 [1] CRAN (R 4.3.0)
+ cluster                2.1.4     2022-08-22 [4] CRAN (R 4.2.1)
+ codetools              0.2-19    2023-02-01 [4] CRAN (R 4.2.2)
+ colorspace             2.1-0     2023-01-23 [1] CRAN (R 4.3.0)
+ crayon                 1.5.2     2022-09-29 [1] CRAN (R 4.3.0)
+ curl                   5.0.0     2023-01-12 [1] CRAN (R 4.3.0)
+ DBI                    1.1.3     2022-06-18 [1] CRAN (R 4.3.0)
+ dbplyr                 2.3.2     2023-03-21 [1] CRAN (R 4.3.0)
+ DelayedArray           0.26.1    2023-05-01 [1] Bioconductor
+ DelayedMatrixStats     1.22.1    2023-06-09 [1] Bioconductor
+ DESeq2               * 1.40.1    2023-05-02 [1] Bioconductor
+ digest                 0.6.31    2022-12-11 [1] CRAN (R 4.3.0)
+ downloader             0.4       2015-07-09 [1] CRAN (R 4.3.0)
+ dplyr                * 1.1.2     2023-04-20 [1] CRAN (R 4.3.0)
+ dqrng                  0.3.0     2021-05-01 [1] CRAN (R 4.3.0)
+ edgeR                  3.42.0    2023-04-25 [1] Bioconductor
+ evaluate               0.20      2023-01-17 [1] CRAN (R 4.3.0)
+ fansi                  1.0.4     2023-01-22 [1] CRAN (R 4.3.0)
+ farver                 2.1.1     2022-07-06 [1] CRAN (R 4.3.0)
+ fastmap                1.1.1     2023-02-24 [1] CRAN (R 4.3.0)
+ filelock               1.0.2     2018-10-05 [1] CRAN (R 4.3.0)
+ forcats              * 1.0.0     2023-01-29 [1] CRAN (R 4.3.0)
+ fs                     1.6.2     2023-04-25 [1] CRAN (R 4.3.0)
+ generics               0.1.3     2022-07-05 [1] CRAN (R 4.3.0)
+ GenomeInfoDb         * 1.36.0    2023-04-25 [1] Bioconductor
+ GenomeInfoDbData       1.2.10    2023-04-28 [1] Bioconductor
+ GenomicAlignments      1.36.0    2023-04-25 [1] Bioconductor
+ GenomicFeatures      * 1.52.0    2023-04-25 [1] Bioconductor
+ GenomicRanges        * 1.52.0    2023-04-25 [1] Bioconductor
+ ggbeeswarm             0.7.2     2023-04-29 [1] CRAN (R 4.3.0)
+ ggplot2              * 3.4.1     2023-02-10 [1] CRAN (R 4.3.0)
+ ggrepel                0.9.3     2023-02-03 [1] CRAN (R 4.3.0)
+ glue                   1.6.2     2022-02-24 [1] CRAN (R 4.3.0)
+ gridExtra              2.3       2017-09-09 [1] CRAN (R 4.3.0)
+ gtable                 0.3.3     2023-03-21 [1] CRAN (R 4.3.0)
+ here                 * 1.0.1     2020-12-13 [1] CRAN (R 4.3.0)
+ hms                    1.1.3     2023-03-21 [1] CRAN (R 4.3.0)
+ htmltools              0.5.5     2023-03-23 [1] CRAN (R 4.3.0)
+ htmlwidgets            1.6.2     2023-03-17 [1] CRAN (R 4.3.0)
+ httr                   1.4.5     2023-02-24 [1] CRAN (R 4.3.0)
+ igraph                 1.4.2     2023-04-07 [1] CRAN (R 4.3.0)
+ IRanges              * 2.34.0    2023-04-25 [1] Bioconductor
+ irlba                  2.3.5.1   2022-10-03 [1] CRAN (R 4.3.0)
+ jsonlite               1.8.4     2022-12-06 [1] CRAN (R 4.3.0)
+ KEGGREST               1.40.0    2023-04-25 [1] Bioconductor
+ knitr                  1.42      2023-01-25 [1] CRAN (R 4.3.0)
+ labeling               0.4.2     2020-10-20 [1] CRAN (R 4.3.0)
+ lattice                0.20-45   2021-09-22 [4] CRAN (R 4.2.0)
+ lifecycle              1.0.3     2022-10-07 [1] CRAN (R 4.3.0)
+ limma                  3.56.0    2023-04-25 [1] Bioconductor
+ locfit                 1.5-9.7   2023-01-02 [1] CRAN (R 4.3.0)
+ lubridate            * 1.9.2     2023-02-10 [1] CRAN (R 4.3.0)
+ magrittr               2.0.3     2022-03-30 [1] CRAN (R 4.3.0)
+ Matrix                 1.5-1     2022-09-13 [4] CRAN (R 4.2.1)
+ MatrixGenerics       * 1.12.2    2023-06-09 [1] Bioconductor
+ matrixStats          * 1.0.0     2023-06-02 [1] CRAN (R 4.3.0)
+ memoise                2.0.1     2021-11-26 [1] CRAN (R 4.3.0)
+ metapod                1.8.0     2023-04-25 [1] Bioconductor
+ munsell                0.5.0     2018-06-12 [1] CRAN (R 4.3.0)
+ patchwork            * 1.1.2     2022-08-19 [1] CRAN (R 4.3.0)
+ pillar                 1.9.0     2023-03-22 [1] CRAN (R 4.3.0)
+ pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 4.3.0)
+ png                    0.1-8     2022-11-29 [1] CRAN (R 4.3.0)
+ prettyunits            1.1.1     2020-01-24 [1] CRAN (R 4.3.0)
+ progress               1.2.2     2019-05-16 [1] CRAN (R 4.3.0)
+ purrr                * 1.0.1     2023-01-10 [1] CRAN (R 4.3.0)
+ R6                     2.5.1     2021-08-19 [1] CRAN (R 4.3.0)
+ rappdirs               0.3.3     2021-01-31 [1] CRAN (R 4.3.0)
+ Rcpp                   1.0.10    2023-01-22 [1] CRAN (R 4.3.0)
+ RCurl                  1.98-1.12 2023-03-27 [1] CRAN (R 4.3.0)
+ readr                * 2.1.4     2023-02-10 [1] CRAN (R 4.3.0)
+ rentrez                1.2.3     2020-11-10 [1] CRAN (R 4.3.0)
+ restfulr               0.0.15    2022-06-16 [1] CRAN (R 4.3.0)
+ rjson                  0.2.21    2022-01-09 [1] CRAN (R 4.3.0)
+ rlang                  1.1.1     2023-04-28 [1] CRAN (R 4.3.0)
+ rmarkdown              2.21      2023-03-26 [1] CRAN (R 4.3.0)
+ rprojroot              2.0.3     2022-04-02 [1] CRAN (R 4.3.0)
+ Rsamtools              2.16.0    2023-04-25 [1] Bioconductor
+ RSQLite                2.3.1     2023-04-03 [1] CRAN (R 4.3.0)
+ rstudioapi             0.14      2022-08-22 [1] CRAN (R 4.3.0)
+ Rsubread               2.14.2    2023-05-22 [1] Bioconductor
+ rsvd                   1.0.5     2021-04-16 [1] CRAN (R 4.3.0)
+ rtracklayer            1.60.0    2023-04-25 [1] Bioconductor
+ S4Arrays               1.0.1     2023-05-01 [1] Bioconductor
+ S4Vectors            * 0.38.0    2023-04-25 [1] Bioconductor
+ ScaledMatrix           1.8.1     2023-05-03 [1] Bioconductor
+ scales                 1.2.1     2022-08-20 [1] CRAN (R 4.3.0)
+ scater               * 1.28.0    2023-04-25 [1] Bioconductor
+ scran                * 1.28.1    2023-05-02 [1] Bioconductor
+ scuttle              * 1.10.1    2023-05-02 [1] Bioconductor
+ sessioninfo            1.2.2     2021-12-06 [1] CRAN (R 4.3.0)
+ SingleCellExperiment * 1.22.0    2023-04-25 [1] Bioconductor
+ sparseMatrixStats      1.12.1    2023-06-20 [1] Bioconductor
+ statmod                1.5.0     2023-01-06 [1] CRAN (R 4.3.0)
+ stringi                1.7.12    2023-01-11 [1] CRAN (R 4.3.0)
+ stringr              * 1.5.0     2022-12-02 [1] CRAN (R 4.3.0)
+ SummarizedExperiment * 1.30.1    2023-05-01 [1] Bioconductor
+ tibble               * 3.2.1     2023-03-20 [1] CRAN (R 4.3.0)
+ tidyr                * 1.3.0     2023-01-24 [1] CRAN (R 4.3.0)
+ tidyselect             1.2.0     2022-10-10 [1] CRAN (R 4.3.0)
+ tidyverse            * 2.0.0     2023-02-22 [1] CRAN (R 4.3.0)
+ timechange             0.2.0     2023-01-11 [1] CRAN (R 4.3.0)
+ tximport               1.28.0    2023-04-25 [1] Bioconductor
+ tzdb                   0.3.0     2022-03-28 [1] CRAN (R 4.3.0)
+ utf8                   1.2.3     2023-01-31 [1] CRAN (R 4.3.0)
+ vctrs                  0.6.2     2023-04-19 [1] CRAN (R 4.3.0)
+ vipor                  0.4.5     2017-03-22 [1] CRAN (R 4.3.0)
+ viridis                0.6.2     2021-10-13 [1] CRAN (R 4.3.0)
+ viridisLite            0.4.2     2023-05-02 [1] CRAN (R 4.3.0)
+ withr                  2.5.0     2022-03-03 [1] CRAN (R 4.3.0)
+ xfun                   0.39      2023-04-20 [1] CRAN (R 4.3.0)
+ XML                    3.99-0.14 2023-03-19 [1] CRAN (R 4.3.0)
+ xml2                   1.3.4     2023-04-27 [1] CRAN (R 4.3.0)
+ XVector                0.40.0    2023-04-25 [1] Bioconductor
+ yaml                   2.3.7     2023-01-23 [1] CRAN (R 4.3.0)
+ zlibbioc               1.46.0    2023-04-25 [1] Bioconductor
+
+ [1] /home/faalm/R/x86_64-pc-linux-gnu-library/4.3
+ [2] /usr/local/lib/R/site-library
+ [3] /usr/lib/R/site-library
+ [4] /usr/lib/R/library
+
+──────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/01_creating_the_SEA_v2.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Creating the Soybean Expression Atlas v2</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/03_exploring_summary_stats.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Load required packages</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
