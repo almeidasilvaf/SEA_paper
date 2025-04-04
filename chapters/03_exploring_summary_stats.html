@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.6.42">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>The Soybean Expression Atlas v2: code and data - 3&nbsp; Load required packages</title>
+<title>3&nbsp; Exploring and visualizing summary statistics – The Soybean Expression Atlas v2: code and data</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -71,17 +71,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-a34d670291f06f286357e447776a572a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
   "panel-placement": "start",
   "type": "textbox",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,6 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -105,13 +112,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/03_exploring_summary_stats.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Load required packages</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/03_exploring_summary_stats.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exploring and visualizing summary statistics</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -120,7 +127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="../">The Soybean Expression Atlas v2: code and data</a> 
@@ -154,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../chapters/03_exploring_summary_stats.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Load required packages</span></span></a>
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exploring and visualizing summary statistics</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -178,28 +185,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#exploring-and-visualizing-summary-statistics" id="toc-exploring-and-visualizing-summary-statistics" class="nav-link active" data-scroll-target="#exploring-and-visualizing-summary-statistics"><span class="header-section-number">4</span> Exploring and visualizing summary statistics</a>
+  <li><a href="#exploratory-data-analyses" id="toc-exploratory-data-analyses" class="nav-link active" data-scroll-target="#exploratory-data-analyses"><span class="header-section-number">3.1</span> Exploratory data analyses</a>
   <ul class="collapse">
-  <li><a href="#exploratory-data-analyses" id="toc-exploratory-data-analyses" class="nav-link" data-scroll-target="#exploratory-data-analyses"><span class="header-section-number">4.1</span> Exploratory data analyses</a>
-  <ul class="collapse">
-  <li><a href="#number-of-samples-per-body-part" id="toc-number-of-samples-per-body-part" class="nav-link" data-scroll-target="#number-of-samples-per-body-part"><span class="header-section-number">4.1.1</span> Number of samples per body part</a></li>
-  <li><a href="#sequencing-technology-and-library-layout" id="toc-sequencing-technology-and-library-layout" class="nav-link" data-scroll-target="#sequencing-technology-and-library-layout"><span class="header-section-number">4.1.2</span> Sequencing technology and library layout</a></li>
+  <li><a href="#number-of-samples-per-body-part" id="toc-number-of-samples-per-body-part" class="nav-link" data-scroll-target="#number-of-samples-per-body-part"><span class="header-section-number">3.1.1</span> Number of samples per body part</a></li>
+  <li><a href="#sequencing-technology-and-library-layout" id="toc-sequencing-technology-and-library-layout" class="nav-link" data-scroll-target="#sequencing-technology-and-library-layout"><span class="header-section-number">3.1.2</span> Sequencing technology and library layout</a></li>
   </ul></li>
-  <li><a href="#time-series-data" id="toc-time-series-data" class="nav-link" data-scroll-target="#time-series-data"><span class="header-section-number">4.2</span> Time series data</a>
+  <li><a href="#time-series-data" id="toc-time-series-data" class="nav-link" data-scroll-target="#time-series-data"><span class="header-section-number">3.2</span> Time series data</a>
   <ul class="collapse">
-  <li><a href="#number-of-samples-over-time" id="toc-number-of-samples-over-time" class="nav-link" data-scroll-target="#number-of-samples-over-time"><span class="header-section-number">4.2.1</span> Number of samples over time</a></li>
-  <li><a href="#sequencing-technologies-and-library-layout-over-time" id="toc-sequencing-technologies-and-library-layout-over-time" class="nav-link" data-scroll-target="#sequencing-technologies-and-library-layout-over-time"><span class="header-section-number">4.2.2</span> Sequencing technologies and library layout over time</a></li>
+  <li><a href="#number-of-samples-over-time" id="toc-number-of-samples-over-time" class="nav-link" data-scroll-target="#number-of-samples-over-time"><span class="header-section-number">3.2.1</span> Number of samples over time</a></li>
+  <li><a href="#sequencing-technologies-and-library-layout-over-time" id="toc-sequencing-technologies-and-library-layout-over-time" class="nav-link" data-scroll-target="#sequencing-technologies-and-library-layout-over-time"><span class="header-section-number">3.2.2</span> Sequencing technologies and library layout over time</a></li>
   </ul></li>
-  <li><a href="#number-of-samples-per-country" id="toc-number-of-samples-per-country" class="nav-link" data-scroll-target="#number-of-samples-per-country"><span class="header-section-number">4.3</span> Number of samples per country</a></li>
+  <li><a href="#number-of-samples-per-country" id="toc-number-of-samples-per-country" class="nav-link" data-scroll-target="#number-of-samples-per-country"><span class="header-section-number">3.3</span> Number of samples per country</a></li>
   <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information">Session information</a></li>
-  </ul></li>
   </ul>
 </nav>
     </div>
@@ -208,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Load required packages</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Exploring and visualizing summary statistics</span></h1>
 </div>
 
 
@@ -221,28 +225,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
 
+
+<p>Here, we will describe the code to (visually) explore summary statistics of the BioSamples included in the SEA 2.0.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># for reproducibility</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(maps)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(maps)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="exploring-and-visualizing-summary-statistics" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Exploring and visualizing summary statistics</h1>
-<p>Here, we will describe the code to (visually) explore summary statistics of the BioSamples included in the SEA 2.0.</p>
-<section id="exploratory-data-analyses" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="exploratory-data-analyses"><span class="header-section-number">4.1</span> Exploratory data analyses</h2>
+<section id="exploratory-data-analyses" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="exploratory-data-analyses"><span class="header-section-number">3.1</span> Exploratory data analyses</h2>
 <p>To start, let’s load the sample metadata information.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"sample_metadata_complete.rda"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="number-of-samples-per-body-part" class="level3" data-number="4.1.1">
-<h3 data-number="4.1.1" class="anchored" data-anchor-id="number-of-samples-per-body-part"><span class="header-section-number">4.1.1</span> Number of samples per body part</h3>
+<section id="number-of-samples-per-body-part" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="number-of-samples-per-body-part"><span class="header-section-number">3.1.1</span> Number of samples per body part</h3>
 <p>Here, we will visualize the number of samples per body part as a bar plot.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get data frame of counts</span></span>
@@ -275,8 +280,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="sequencing-technology-and-library-layout" class="level3" data-number="4.1.2">
-<h3 data-number="4.1.2" class="anchored" data-anchor-id="sequencing-technology-and-library-layout"><span class="header-section-number">4.1.2</span> Sequencing technology and library layout</h3>
+<section id="sequencing-technology-and-library-layout" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="sequencing-technology-and-library-layout"><span class="header-section-number">3.1.2</span> Sequencing technology and library layout</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get a data frame of counts for sequencing technology</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>seqtech_count <span class="ot">&lt;-</span> sample_metadata_complete <span class="sc">|&gt;</span></span>
@@ -329,7 +334,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>p_seqtech_layout_count</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="03_exploring_summary_stats_files/figure-html/sequencing-tech-and-layout-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="03_exploring_summary_stats_files/figure-html/sequencing-tech-and-layout-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell">
@@ -341,11 +350,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="time-series-data" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="time-series-data"><span class="header-section-number">4.2</span> Time series data</h2>
+<section id="time-series-data" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="time-series-data"><span class="header-section-number">3.2</span> Time series data</h2>
 <p>Here, we will explore the evolution of some variables (e.g., body part, sequencing technology, etc.) over time, as well as a cumulative distribution of samples over time.</p>
-<section id="number-of-samples-over-time" class="level3" data-number="4.2.1">
-<h3 data-number="4.2.1" class="anchored" data-anchor-id="number-of-samples-over-time"><span class="header-section-number">4.2.1</span> Number of samples over time</h3>
+<section id="number-of-samples-over-time" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="number-of-samples-over-time"><span class="header-section-number">3.2.1</span> Number of samples over time</h3>
 <p>Here, we will plot a cumulative sum of the number of samples over time, highlighting what changed since the Soybean Expression Atlas 1.0 (last download on July 21, 2017).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p_nsamples_over_time_cumsum <span class="ot">&lt;-</span> sample_metadata_complete <span class="sc">|&gt;</span></span>
@@ -383,7 +392,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>p_nsamples_over_time_cumsum</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<div>
+<figure class="figure">
+<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell">
@@ -394,10 +407,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="sequencing-technologies-and-library-layout-over-time" class="level3" data-number="4.2.2">
-<h3 data-number="4.2.2" class="anchored" data-anchor-id="sequencing-technologies-and-library-layout-over-time"><span class="header-section-number">4.2.2</span> Sequencing technologies and library layout over time</h3>
+<section id="sequencing-technologies-and-library-layout-over-time" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="sequencing-technologies-and-library-layout-over-time"><span class="header-section-number">3.2.2</span> Sequencing technologies and library layout over time</h3>
 <p>Here, we will explore how sequencing technologies and library layout evolved over time by taking a look at the deposited samples. We want to find out whether a particular technology was common in the early years, but was quickly replaced by more modern technologies, for example. For library layout, we hypothesize that single-end sequencing was more common in the early years, but paired-end sequencing has now become more popular.</p>
-<div class="cell" data-fig.dpi="200">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot cumulative number of samples for each sequencing instrument over time</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>p_seqtech_timeseries <span class="ot">&lt;-</span> sample_metadata_complete <span class="sc">|&gt;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select only Date and Instrument and add dummy variable N with count</span></span>
@@ -511,7 +524,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a>p_seqtech_timeseries <span class="sc">/</span> p_layout_timeseries <span class="sc">/</span> p_bodypart_timeseries</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="768"></p>
+<div>
+<figure class="figure">
+<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="1600"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell">
@@ -533,8 +550,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="number-of-samples-per-country" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="number-of-samples-per-country"><span class="header-section-number">4.3</span> Number of samples per country</h2>
+<section id="number-of-samples-per-country" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="number-of-samples-per-country"><span class="header-section-number">3.3</span> Number of samples per country</h2>
 <p>In this section, we will calculate and visualize the number of samples per country to understand who contributes with most samples to databases. We also want to look for associations between the number of samples and soybean production.</p>
 <p>Geographic information will be obtainded from the file <code>sra_run_selector_2023-12-16.txt</code>, which was downloaded from SRA Run Selector. In details, we searched “Glycine max[ORGN] AND RNA-seq[STRA]” on NCBI’s SRA, clicked on <em>Send results to Run selector</em>, and downloaded the metadata for all samples.</p>
 <div class="cell">
@@ -791,7 +808,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">widths =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>)</span>
 <span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="1152"></p>
+<div>
+<figure class="figure">
+<p><img src="03_exploring_summary_stats_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
 </div>
 </div>
 <div class="cell">
@@ -816,74 +837,74 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>─ Session info ───────────────────────────────────────────────────────────────
  setting  value
- version  R version 4.3.0 (2023-04-21)
- os       Ubuntu 20.04.5 LTS
+ version  R version 4.4.1 (2024-06-14)
+ os       Ubuntu 22.04.4 LTS
  system   x86_64, linux-gnu
  ui       X11
  language (EN)
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       Europe/Brussels
- date     2023-06-23
- pandoc   3.1.1 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/ (via rmarkdown)
+ date     2025-04-04
+ pandoc   3.2 @ /usr/lib/rstudio/resources/app/bin/quarto/bin/tools/x86_64/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────
  package     * version date (UTC) lib source
- cli           3.6.1   2023-03-23 [1] CRAN (R 4.3.0)
- colorspace    2.1-0   2023-01-23 [1] CRAN (R 4.3.0)
- digest        0.6.31  2022-12-11 [1] CRAN (R 4.3.0)
- dplyr       * 1.1.2   2023-04-20 [1] CRAN (R 4.3.0)
- evaluate      0.20    2023-01-17 [1] CRAN (R 4.3.0)
- fansi         1.0.4   2023-01-22 [1] CRAN (R 4.3.0)
- farver        2.1.1   2022-07-06 [1] CRAN (R 4.3.0)
- fastmap       1.1.1   2023-02-24 [1] CRAN (R 4.3.0)
- forcats     * 1.0.0   2023-01-29 [1] CRAN (R 4.3.0)
- generics      0.1.3   2022-07-05 [1] CRAN (R 4.3.0)
- ggplot2     * 3.4.1   2023-02-10 [1] CRAN (R 4.3.0)
- ggrepel     * 0.9.3   2023-02-03 [1] CRAN (R 4.3.0)
- ggsci         3.0.0   2023-03-08 [1] CRAN (R 4.3.0)
- glue          1.6.2   2022-02-24 [1] CRAN (R 4.3.0)
- gtable        0.3.3   2023-03-21 [1] CRAN (R 4.3.0)
- here        * 1.0.1   2020-12-13 [1] CRAN (R 4.3.0)
- hms           1.1.3   2023-03-21 [1] CRAN (R 4.3.0)
- htmltools     0.5.5   2023-03-23 [1] CRAN (R 4.3.0)
- htmlwidgets   1.6.2   2023-03-17 [1] CRAN (R 4.3.0)
- jsonlite      1.8.4   2022-12-06 [1] CRAN (R 4.3.0)
- knitr         1.42    2023-01-25 [1] CRAN (R 4.3.0)
- labeling      0.4.2   2020-10-20 [1] CRAN (R 4.3.0)
- lifecycle     1.0.3   2022-10-07 [1] CRAN (R 4.3.0)
- lubridate   * 1.9.2   2023-02-10 [1] CRAN (R 4.3.0)
- magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.3.0)
- maps        * 3.4.1   2022-10-30 [1] CRAN (R 4.3.0)
- munsell       0.5.0   2018-06-12 [1] CRAN (R 4.3.0)
- patchwork   * 1.1.2   2022-08-19 [1] CRAN (R 4.3.0)
- pillar        1.9.0   2023-03-22 [1] CRAN (R 4.3.0)
- pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.3.0)
- purrr       * 1.0.1   2023-01-10 [1] CRAN (R 4.3.0)
- R6            2.5.1   2021-08-19 [1] CRAN (R 4.3.0)
- Rcpp          1.0.10  2023-01-22 [1] CRAN (R 4.3.0)
- readr       * 2.1.4   2023-02-10 [1] CRAN (R 4.3.0)
- rlang         1.1.1   2023-04-28 [1] CRAN (R 4.3.0)
- rmarkdown     2.21    2023-03-26 [1] CRAN (R 4.3.0)
- rprojroot     2.0.3   2022-04-02 [1] CRAN (R 4.3.0)
- rstudioapi    0.14    2022-08-22 [1] CRAN (R 4.3.0)
- scales        1.2.1   2022-08-20 [1] CRAN (R 4.3.0)
- sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.3.0)
- stringi       1.7.12  2023-01-11 [1] CRAN (R 4.3.0)
- stringr     * 1.5.0   2022-12-02 [1] CRAN (R 4.3.0)
- tibble      * 3.2.1   2023-03-20 [1] CRAN (R 4.3.0)
- tidyr       * 1.3.0   2023-01-24 [1] CRAN (R 4.3.0)
- tidyselect    1.2.0   2022-10-10 [1] CRAN (R 4.3.0)
- tidyverse   * 2.0.0   2023-02-22 [1] CRAN (R 4.3.0)
- timechange    0.2.0   2023-01-11 [1] CRAN (R 4.3.0)
- tzdb          0.3.0   2022-03-28 [1] CRAN (R 4.3.0)
- utf8          1.2.3   2023-01-31 [1] CRAN (R 4.3.0)
- vctrs         0.6.2   2023-04-19 [1] CRAN (R 4.3.0)
- withr         2.5.0   2022-03-03 [1] CRAN (R 4.3.0)
- xfun          0.39    2023-04-20 [1] CRAN (R 4.3.0)
- yaml          2.3.7   2023-01-23 [1] CRAN (R 4.3.0)
+ cli           3.6.3   2024-06-21 [1] CRAN (R 4.4.1)
+ colorspace    2.1-0   2023-01-23 [1] CRAN (R 4.4.1)
+ digest        0.6.36  2024-06-23 [1] CRAN (R 4.4.1)
+ dplyr       * 1.1.4   2023-11-17 [1] CRAN (R 4.4.1)
+ evaluate      0.24.0  2024-06-10 [1] CRAN (R 4.4.1)
+ fansi         1.0.6   2023-12-08 [1] CRAN (R 4.4.1)
+ farver        2.1.2   2024-05-13 [1] CRAN (R 4.4.1)
+ fastmap       1.2.0   2024-05-15 [1] CRAN (R 4.4.1)
+ forcats     * 1.0.0   2023-01-29 [1] CRAN (R 4.4.1)
+ generics      0.1.3   2022-07-05 [1] CRAN (R 4.4.1)
+ ggplot2     * 3.5.1   2024-04-23 [1] CRAN (R 4.4.1)
+ ggrepel     * 0.9.5   2024-01-10 [1] CRAN (R 4.4.1)
+ ggsci         3.2.0   2024-06-18 [1] CRAN (R 4.4.1)
+ glue          1.7.0   2024-01-09 [1] CRAN (R 4.4.1)
+ gtable        0.3.5   2024-04-22 [1] CRAN (R 4.4.1)
+ here        * 1.0.1   2020-12-13 [1] CRAN (R 4.4.1)
+ hms           1.1.3   2023-03-21 [1] CRAN (R 4.4.1)
+ htmltools     0.5.8.1 2024-04-04 [1] CRAN (R 4.4.1)
+ htmlwidgets   1.6.4   2023-12-06 [1] CRAN (R 4.4.1)
+ jsonlite      1.8.8   2023-12-04 [1] CRAN (R 4.4.1)
+ knitr         1.48    2024-07-07 [1] CRAN (R 4.4.1)
+ labeling      0.4.3   2023-08-29 [1] CRAN (R 4.4.1)
+ lifecycle     1.0.4   2023-11-07 [1] CRAN (R 4.4.1)
+ lubridate   * 1.9.3   2023-09-27 [1] CRAN (R 4.4.1)
+ magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.4.1)
+ maps        * 3.4.2   2023-12-15 [1] CRAN (R 4.4.1)
+ munsell       0.5.1   2024-04-01 [1] CRAN (R 4.4.1)
+ patchwork   * 1.2.0   2024-01-08 [1] CRAN (R 4.4.1)
+ pillar        1.9.0   2023-03-22 [1] CRAN (R 4.4.1)
+ pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.4.1)
+ purrr       * 1.0.2   2023-08-10 [1] CRAN (R 4.4.1)
+ R6            2.5.1   2021-08-19 [1] CRAN (R 4.4.1)
+ Rcpp          1.0.13  2024-07-17 [1] CRAN (R 4.4.1)
+ readr       * 2.1.5   2024-01-10 [1] CRAN (R 4.4.1)
+ rlang         1.1.4   2024-06-04 [1] CRAN (R 4.4.1)
+ rmarkdown     2.27    2024-05-17 [1] CRAN (R 4.4.1)
+ rprojroot     2.0.4   2023-11-05 [1] CRAN (R 4.4.1)
+ rstudioapi    0.16.0  2024-03-24 [1] CRAN (R 4.4.1)
+ scales        1.3.0   2023-11-28 [1] CRAN (R 4.4.1)
+ sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.4.1)
+ stringi       1.8.4   2024-05-06 [1] CRAN (R 4.4.1)
+ stringr     * 1.5.1   2023-11-14 [1] CRAN (R 4.4.1)
+ tibble      * 3.2.1   2023-03-20 [1] CRAN (R 4.4.1)
+ tidyr       * 1.3.1   2024-01-24 [1] CRAN (R 4.4.1)
+ tidyselect    1.2.1   2024-03-11 [1] CRAN (R 4.4.1)
+ tidyverse   * 2.0.0   2023-02-22 [1] CRAN (R 4.4.1)
+ timechange    0.3.0   2024-01-18 [1] CRAN (R 4.4.1)
+ tzdb          0.4.0   2023-05-12 [1] CRAN (R 4.4.1)
+ utf8          1.2.4   2023-10-22 [1] CRAN (R 4.4.1)
+ vctrs         0.6.5   2023-12-01 [1] CRAN (R 4.4.1)
+ withr         3.0.0   2024-01-16 [1] CRAN (R 4.4.1)
+ xfun          0.51    2025-02-19 [1] CRAN (R 4.4.1)
+ yaml          2.3.9   2024-07-05 [1] CRAN (R 4.4.1)
 
- [1] /home/faalm/R/x86_64-pc-linux-gnu-library/4.3
+ [1] /home/faalm/R/x86_64-pc-linux-gnu-library/4.4
  [2] /usr/local/lib/R/site-library
  [3] /usr/lib/R/site-library
  [4] /usr/lib/R/library
@@ -893,7 +914,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -932,18 +952,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -975,11 +984,48 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -989,8 +1035,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1002,7 +1057,129 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1046,6 +1223,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1071,6 +1249,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1132,17 +1336,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../chapters/02_analyzing_quantitative_data.html" class="pagination-link">
+      <a href="../chapters/02_analyzing_quantitative_data.html" class="pagination-link" aria-label="Analyzing quantitative data">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Analyzing quantitative data</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../chapters/04_create_app_data_directory.html" class="pagination-link">
+      <a href="../chapters/04_create_app_data_directory.html" class="pagination-link" aria-label="Creating a directory with data for the Shiny app">
         <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Creating a directory with data for the Shiny app</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+
 
 
 
