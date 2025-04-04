@@ -5,6 +5,12 @@ execute:
   warning: false
 ---
 
+# Exploring and visualizing summary statistics
+
+
+Here, we will describe the code to (visually) explore summary statistics of 
+the BioSamples included in the SEA 2.0.
+
 ```{r here}
 set.seed(123) # for reproducibility
 
@@ -15,11 +21,6 @@ library(patchwork)
 library(maps)
 library(ggrepel)
 ```
-
-# Exploring and visualizing summary statistics
-
-Here, we will describe the code to (visually) explore summary statistics of 
-the BioSamples included in the SEA 2.0.
 
 ## Exploratory data analyses
 
